@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SubTrack — Subscription & Spending Management</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              300: '#a5b4fc',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            },
+            accent: {
+              emerald: '#10b981',
+              rose: '#f43f5e',
+              amber: '#f59e0b',
+              violet: '#8b5cf6',
+              sky: '#0ea5e9'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Flatpickr Datepicker CSS & JS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css" />
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-200">
+
+  <!-- MAIN WRAPPER -->
+  <div class="flex-1 flex flex-col min-h-screen">
+
+    <!-- HEADER NAVBAR -->
+    <header class="sticky top-0 z-30 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-700/80 transition-colors">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+
+          <!-- Logo & Brand -->
+          <div class="flex items-center space-x-3 cursor-pointer" onclick="app.navigateTo('dashboard')">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+              <i data-lucide="layers" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-brand-600 via-indigo-600 to-accent-violet bg-clip-text text-transparent dark:from-brand-400 dark:to-indigo-300">
+                SubTrack
+              </span>
+              <span class="hidden sm:inline-block text-[10px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded bg-brand-100 text-brand-700 dark:bg-brand-900/50 dark:text-brand-300 ml-1.5">
+                Pro
+              </span>
+            </div>
+          </div>
+
+          <!-- Navigation Links -->
+          <nav class="hidden md:flex items-center space-x-1 bg-slate-100/80 dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
+            <button data-nav="dashboard" onclick="app.navigateTo('dashboard')" class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center space-x-1.5">
+              <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+              <span>Dashboard</span>
+            </button>
+            <button data-nav="subscriptions" onclick="app.navigateTo('subscriptions')" class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center space-x-1.5">
+              <i data-lucide="credit-card" class="w-4 h-4"></i>
+              <span>Subscriptions</span>
+            </button>
+            <button data-nav="analytics" onclick="app.navigateTo('analytics')" class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center space-x-1.5">
+              <i data-lucide="pie-chart" class="w-4 h-4"></i>
+              <span>Analytics</span>
+            </button>
+            <button data-nav="calendar" onclick="app.navigateTo('calendar')" class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center space-x-1.5">
+              <i data-lucide="calendar" class="w-4 h-4"></i>
+              <span>Calendar</span>
+            </button>
+            <button data-nav="insights" onclick="app.navigateTo('insights')" class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center space-x-1.5 relative">
+              <i data-lucide="sparkles" class="w-4 h-4 text-amber-500"></i>
+              <span>AI Savings</span>
+              <span class="flex h-2 w-2 relative">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+              </span>
+            </button>
+          </nav>
+
+          <!-- Header Actions -->
+          <div class="flex items-center space-x-3">
+            <!-- Search Quick Trigger -->
+            <div class="relative hidden sm:block w-48 lg:w-60">
+              <input type="text" id="global-search-input" placeholder="Search subscriptions..." oninput="app.handleGlobalSearch(this.value)" class="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all" />
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-2.5 top-2"></i>
+            </div>
+
+            <!-- Add Subscription Button -->
+            <button onclick="app.openAddModal()" class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-brand-600 hover:bg-brand-700 active:scale-95 text-white shadow-md shadow-brand-500/25 flex items-center space-x-1.5 transition-all">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Add Sub</span>
+            </button>
+
+            <!-- Theme Toggle -->
+            <button id="theme-toggle-btn" onclick="app.toggleTheme()" class="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Toggle Theme">
+              <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+              <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+            </button>
+
+            <!-- Mobile Menu Toggle -->
+            <button onclick="app.toggleMobileNav()" class="md:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+              <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-nav" class="hidden md:hidden pb-4 pt-2 border-t border-slate-200 dark:border-slate-700">
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="app.navigateTo('dashboard')" class="px-3 py-2 rounded-lg text-sm font-medium text-left bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center space-x-2">
+              <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+              <span>Dashboard</span>
+            </button>
+            <button onclick="app.navigateTo('subscriptions')" class="px-3 py-2 rounded-lg text-sm font-medium text-left bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center space-x-2">
+              <i data-lucide="credit-card" class="w-4 h-4"></i>
+              <span>Subscriptions</span>
+            </button>
+            <button onclick="app.navigateTo('analytics')" class="px-3 py-2 rounded-lg text-sm font-medium text-left bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center space-x-2">
+              <i data-lucide="pie-chart" class="w-4 h-4"></i>
+              <span>Analytics</span>
+            </button>
+            <button onclick="app.navigateTo('calendar')" class="px-3 py-2 rounded-lg text-sm font-medium text-left bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center space-x-2">
+              <i data-lucide="calendar" class="w-4 h-4"></i>
+              <span>Calendar</span>
+            </button>
+            <button onclick="app.navigateTo('insights')" class="px-3 py-2 rounded-lg text-sm font-medium text-left bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center space-x-2 col-span-2">
+              <i data-lucide="sparkles" class="w-4 h-4 text-amber-500"></i>
+              <span>AI Savings Recommendations</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- CONTENT VIEWS WRAPPER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+      <!-- VIEW 1: DASHBOARD -->
+      <section id="view-dashboard" class="space-y-6 transition-all">
+
+        <!-- Welcome Hero Banner -->
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-800 text-white p-6 sm:p-8 shadow-xl shadow-brand-600/10">
+          <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+          <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <div class="inline-flex items-center space-x-2 bg-white/15 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium text-brand-100 mb-3 border border-white/20">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                <span>Financial Calm Overview</span>
+              </div>
+              <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Your Subscription Health</h1>
+              <p class="text-brand-100 text-sm mt-1 max-w-xl">
+                Track recurring outflows, avoid silent renewals, and identify clear opportunities to optimize monthly spending.
+              </p>
+            </div>
+
+            <div class="flex items-center space-x-3 self-start md:self-auto">
+              <div class="bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/20">
+                <span class="text-xs text-brand-200 block uppercase font-bold tracking-wider">Currency</span>
+                <span class="text-sm font-semibold flex items-center space-x-1">
+                  <span>USD ($)</span>
+                </span>
+              </div>
+              <button onclick="app.openAddModal()" class="px-5 py-2.5 rounded-2xl bg-white text-brand-700 font-bold text-sm shadow-lg hover:bg-brand-50 transition-all flex items-center space-x-2">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Add Subscription</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATS METRICS GRID (Large Visual Numbers) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+          <!-- Card 1: Total Monthly Spending -->
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm hover:shadow-md transition-all">
+            <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+              <span class="text-xs font-semibold uppercase tracking-wider">Total Monthly Spending</span>
+              <div class="p-2 rounded-xl bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400">
+                <i data-lucide="dollar-sign" class="w-5 h-5"></i>
+              </div>
+            </div>
+            <div id="stat-monthly-spending" class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">$0.00</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex items-center space-x-1">
+              <span class="text-emerald-500 font-medium flex items-center">
+                <i data-lucide="trending-down" class="w-3.5 h-3.5 mr-0.5"></i> -2.4%
+              </span>
+              <span>vs last month</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Active Subscriptions -->
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm hover:shadow-md transition-all">
+            <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+              <span class="text-xs font-semibold uppercase tracking-wider">Active Subscriptions</span>
+              <div class="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
+                <i data-lucide="repeat" class="w-5 h-5"></i>
+              </div>
+            </div>
+            <div id="stat-active-count" class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">0</div>
+            <div id="stat-active-subtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-2">
+              Across 5 primary categories
+            </div>
+          </div>
+
+          <!-- Card 3: Annual Subscription Cost -->
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm hover:shadow-md transition-all">
+            <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+              <span class="text-xs font-semibold uppercase tracking-wider">Annual Run Rate</span>
+              <div class="p-2 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">
+                <i data-lucide="calendar" class="w-5 h-5"></i>
+              </div>
+            </div>
+            <div id="stat-annual-cost" class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">$0.00</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-2">
+              Projected yearly commitment
+            </div>
+          </div>
+
+          <!-- Card 4: Potential Savings -->
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-2 h-full bg-emerald-500"></div>
+            <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Potential Savings</span>
+              <div class="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
+                <i data-lucide="piggy-bank" class="w-5 h-5"></i>
+              </div>
+            </div>
+            <div id="stat-potential-savings" class="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight">$0.00</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex items-center justify-between">
+              <span>Unused & plan optimization</span>
+              <button onclick="app.navigateTo('insights')" class="text-brand-600 dark:text-brand-400 font-semibold hover:underline text-[11px]">View Insights &rarr;</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- CHARTS & SUMMARY SECTION -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          <!-- Chart 1: Category Breakdown (Doughnut) -->
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">Category Breakdown</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Monthly expense allocation</p>
+              </div>
+              <span class="text-xs font-medium text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/30 px-2.5 py-1 rounded-lg">Realtime</span>
+            </div>
+            <div class="relative h-60 flex items-center justify-center">
+              <canvas id="categoryChartDashboard"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 2: Highest Recurring Expenses (Bar) -->
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm lg:col-span-2">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">Highest Recurring Expenses</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Top subscriptions by monthly impact</p>
+              </div>
+              <button onclick="app.navigateTo('subscriptions')" class="text-xs font-medium text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 flex items-center space-x-1">
+                <span>View All</span>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+            <div class="relative h-60">
+              <canvas id="topExpensesChart"></canvas>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RECENT & UPCOMING GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <!-- Upcoming Payments Timeline -->
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <div class="p-2 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">
+                  <i data-lucide="clock" class="w-4 h-4"></i>
+                </div>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">Upcoming Payments</h3>
+              </div>
+              <button onclick="app.navigateTo('calendar')" class="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline">Calendar view</button>
+            </div>
+            <div id="upcoming-payments-list" class="space-y-3">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Recently Added Subscriptions -->
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <div class="p-2 rounded-xl bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400">
+                  <i data-lucide="sparkles" class="w-4 h-4"></i>
+                </div>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">Recently Added</h3>
+              </div>
+              <button onclick="app.navigateTo('subscriptions')" class="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline">Manage all</button>
+            </div>
+            <div id="recent-subscriptions-list" class="space-y-3">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- AI RECOMMENDATIONS BANNER (Simulated Insights) -->
+        <div id="dashboard-ai-banner" class="rounded-2xl p-6 bg-gradient-to-r from-slate-900 via-brand-950 to-slate-900 text-white border border-slate-800 shadow-xl relative overflow-hidden">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="space-y-1">
+              <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                <i data-lucide="bot" class="w-3.5 h-3.5"></i>
+                <span>Simulated AI Insight</span>
+              </div>
+              <h3 id="dashboard-ai-title" class="text-lg font-bold">Checking subscription activity...</h3>
+              <p id="dashboard-ai-desc" class="text-slate-300 text-xs sm:text-sm max-w-2xl">
+                Evaluating usage patterns across active memberships to detect inactive plans and price optimizations.
+              </p>
+            </div>
+            <button onclick="app.navigateTo('insights')" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm transition-all shadow-md flex items-center space-x-1.5 whitespace-nowrap">
+              <span>View AI Recommendations</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- VIEW 2: SUBSCRIPTIONS LIST / GRID -->
+      <section id="view-subscriptions" class="space-y-6 hidden transition-all">
+
+        <!-- Controls Toolbar Header -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm space-y-4">
+
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white">Subscriptions</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Manage, search and filter all your active and paused memberships</p>
+            </div>
+
+            <!-- Display Controls (Period selector & View switch) -->
+            <div class="flex items-center space-x-3">
+
+              <!-- Period toggle -->
+              <div class="bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center text-xs font-semibold">
+                <button id="period-monthly-btn" onclick="app.setPeriod('Monthly')" class="px-3 py-1.5 rounded-lg transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm">Monthly</button>
+                <button id="period-annual-btn" onclick="app.setPeriod('Annual')" class="px-3 py-1.5 rounded-lg transition-all text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">Annual Display</button>
+              </div>
+
+              <!-- View Layout Switcher (Grid vs List Table) -->
+              <div class="bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center">
+                <button id="view-mode-grid" onclick="app.setViewMode('grid')" class="p-1.5 rounded-lg transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm" title="Grid View">
+                  <i data-lucide="grid" class="w-4 h-4"></i>
+                </button>
+                <button id="view-mode-table" onclick="app.setViewMode('table')" class="p-1.5 rounded-lg transition-all text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white" title="Table View">
+                  <i data-lucide="list" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Filters & Search Toolbar -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-2 border-t border-slate-100 dark:border-slate-700/50">
+
+            <!-- Search -->
+            <div class="relative col-span-1 sm:col-span-2 lg:col-span-1">
+              <input type="text" id="filter-search" placeholder="Search by name..." oninput="app.handleFilterChange()" class="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+            </div>
+
+            <!-- Category Filter -->
+            <div>
+              <select id="filter-category" onchange="app.handleFilterChange()" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <option value="All">All Categories</option>
+                <option value="Software">Software</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Education">Education</option>
+                <option value="Productivity">Productivity</option>
+                <option value="Cloud storage">Cloud Storage</option>
+                <option value="Fitness">Fitness</option>
+                <option value="Shopping">Shopping</option>
+              </select>
+            </div>
+
+            <!-- Status Filter -->
+            <div>
+              <select id="filter-status" onchange="app.handleFilterChange()" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <option value="All">All Statuses</option>
+                <option value="Active">Active</option>
+                <option value="Paused">Paused</option>
+              </select>
+            </div>
+
+            <!-- Cycle Filter -->
+            <div>
+              <select id="filter-cycle" onchange="app.handleFilterChange()" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <option value="All">All Cycles</option>
+                <option value="Monthly">Monthly</option>
+                <option value="Yearly">Yearly</option>
+              </select>
+            </div>
+
+            <!-- Sort By -->
+            <div>
+              <select id="filter-sort" onchange="app.handleFilterChange()" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <option value="price-desc">Price: High to Low</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="name-asc">Name: A to Z</option>
+                <option value="date-asc">Next Renewal: Soonest</option>
+              </select>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- CARDS CONTAINER (GRID) -->
+        <div id="subscriptions-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- TABLE CONTAINER (LIST) -->
+        <div id="subscriptions-table-container" class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm overflow-hidden hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs uppercase font-semibold border-b border-slate-200 dark:border-slate-700">
+                <tr>
+                  <th class="py-3.5 px-4">Service</th>
+                  <th class="py-3.5 px-4">Category</th>
+                  <th class="py-3.5 px-4">Cycle</th>
+                  <th class="py-3.5 px-4">Cost</th>
+                  <th class="py-3.5 px-4">Next Payment</th>
+                  <th class="py-3.5 px-4">Annual</th>
+                  <th class="py-3.5 px-4">Status</th>
+                  <th class="py-3.5 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="subscriptions-table-body" class="divide-y divide-slate-200 dark:divide-slate-700/50">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Empty State Container -->
+        <div id="subscriptions-empty-state" class="hidden text-center py-16 px-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+          <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mx-auto mb-4 text-slate-400">
+            <i data-lucide="search-x" class="w-8 h-8"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200">No subscriptions found</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-1">We couldn't find any subscriptions matching your filters or search criteria.</p>
+          <button onclick="app.resetFilters()" class="mt-4 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-slate-200 dark:hover:bg-slate-600 transition-all">
+            Reset Filters
+          </button>
+        </div>
+
+      </section>
+
+      <!-- VIEW 3: SUBSCRIPTION ANALYSIS / ANALYTICS -->
+      <section id="view-analytics" class="space-y-6 hidden transition-all">
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white">Subscription Analytics</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">In-depth breakdown of recurring costs over time, status and category density</p>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <span class="text-xs text-slate-500">Spending Period:</span>
+            <select id="analytics-timeframe" onchange="app.renderAnalytics()" class="px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-medium">
+              <option value="12">Last 12 Months</option>
+              <option value="6">Last 6 Months</option>
+              <option value="3">Last 3 Months</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ANALYTICS HIGHLIGHT CARDS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Monthly Recurring</span>
+            <div id="analytics-stat-monthly" class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">$0.00</div>
+            <p class="text-xs text-slate-400 mt-1">Active monthly commitment</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Annualized Expense</span>
+            <div id="analytics-stat-annual" class="text-2xl font-extrabold text-brand-600 dark:text-brand-400 mt-1">$0.00</div>
+            <p class="text-xs text-slate-400 mt-1">Total yearly outflow</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Top Spend Category</span>
+            <div id="analytics-stat-top-cat" class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">—</div>
+            <p id="analytics-stat-top-cat-val" class="text-xs text-slate-400 mt-1">$0.00 / month</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active vs Inactive</span>
+            <div id="analytics-stat-active-ratio" class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">0 / 0</div>
+            <p class="text-xs text-slate-400 mt-1">Subscriptions ratio</p>
+          </div>
+        </div>
+
+        <!-- ANALYTICS CHARTS GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <!-- Cost Over Time Line Chart -->
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm lg:col-span-2">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">Cost Over Time</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Historical & projected monthly subscription expenses</p>
+              </div>
+            </div>
+            <div class="relative h-72">
+              <canvas id="costOverTimeChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Category Spending Doughnut Chart -->
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">Category Spending</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Distribution by service domain</p>
+              </div>
+            </div>
+            <div class="relative h-64 flex items-center justify-center">
+              <canvas id="categoryAnalyticsChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Most Expensive Subscriptions Horizontal Bar -->
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">Most Expensive Subscriptions</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Top 5 highest cost items</p>
+              </div>
+            </div>
+            <div class="relative h-64">
+              <canvas id="mostExpensiveChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Active vs Inactive Subscriptions Donut -->
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm lg:col-span-2">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">Active versus Inactive Subscriptions</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Proportion of active monthly payments vs paused/unused services</p>
+              </div>
+            </div>
+            <div class="relative h-56 flex items-center justify-center">
+              <canvas id="activeVsInactiveChart"></canvas>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- VIEW 4: PAYMENT CALENDAR -->
+      <section id="view-calendar" class="space-y-6 hidden transition-all">
+
+        <!-- Calendar Controls -->
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white">Payment Calendar</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Visualize upcoming renewal dates and charge schedules</p>
+            </div>
+
+            <!-- Month Navigator -->
+            <div class="flex items-center space-x-3">
+              <button onclick="app.prevCalendarMonth()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 transition-all">
+                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+              </button>
+              <span id="calendar-month-year" class="text-base font-bold text-slate-900 dark:text-white min-w-[140px] text-center">Month Year</span>
+              <button onclick="app.nextCalendarMonth()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 transition-all">
+                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Calendar Grid -->
+          <div class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+            <!-- Day of week header -->
+            <div class="grid grid-cols-7 bg-slate-100 dark:bg-slate-900/80 text-center text-xs font-semibold py-2.5 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
+              <div>Sun</div>
+              <div>Mon</div>
+              <div>Tue</div>
+              <div>Wed</div>
+              <div>Thu</div>
+              <div>Fri</div>
+              <div>Sat</div>
+            </div>
+
+            <!-- Days Grid -->
+            <div id="calendar-grid" class="grid grid-cols-7 bg-white dark:bg-slate-800 divide-x divide-y divide-slate-100 dark:divide-slate-700/50">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Calendar Legend -->
+          <div class="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-2">
+            <span class="flex items-center space-x-1.5">
+              <span class="w-3 h-3 rounded-full bg-brand-500"></span>
+              <span>Active Payment</span>
+            </span>
+            <span class="flex items-center space-x-1.5">
+              <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+              <span>Due in &lt; 3 Days</span>
+            </span>
+            <span class="flex items-center space-x-1.5">
+              <span class="w-3 h-3 rounded-full bg-slate-300 dark:bg-slate-600"></span>
+              <span>Paused Service</span>
+            </span>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- VIEW 5: SAVINGS OPPORTUNITIES (AI INSIGHTS) -->
+      <section id="view-insights" class="space-y-6 hidden transition-all">
+
+        <!-- Header Banner -->
+        <div class="p-6 rounded-3xl bg-gradient-to-r from-amber-500/10 via-indigo-500/10 to-brand-500/10 border border-amber-500/20 dark:border-amber-500/30">
+          <div class="flex items-start space-x-4">
+            <div class="p-3 rounded-2xl bg-amber-500 text-slate-950 shadow-md">
+              <i data-lucide="sparkles" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300 mb-1">
+                <span>SIMULATED FINANCIAL INSIGHTS</span>
+              </div>
+              <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white">Savings Opportunities & Recommendations</h2>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 max-w-3xl">
+                Our AI model continuously evaluates your recurring payment cadence, plan tiers, and usage frequency. The recommendations below demonstrate simulated automated cost optimization.
+              </p>
+              <div class="mt-2 text-[11px] text-slate-400 italic">
+                * Note: These insights are mock generated suggestions designed to demonstrate spending intelligence features—not actual financial advice.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RECOMMENDATION CARDS LIST -->
+        <div id="insights-cards-container" class="space-y-4">
+          <!-- Populated by JS -->
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 py-6">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-3">
+        <div class="flex items-center space-x-2">
+          <span class="font-bold text-slate-700 dark:text-slate-300">SubTrack</span>
+          <span>&copy; 2025 Personal Spending Dashboard</span>
+        </div>
+        <div class="text-center sm:text-right">
+          <span>Simulated Backend Architecture Ready &bull; Mock REST/GraphQL Data Layer</span>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ====================================================================================== -->
+  <!-- MODALS -->
+  <!-- ====================================================================================== -->
+
+  <!-- MULTI-STEP ADD SUBSCRIPTION MODAL -->
+  <div id="modal-add-subscription" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm hidden">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-2xl max-w-lg w-full overflow-hidden animate-modal-in">
+
+      <!-- Modal Header -->
+      <div class="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700/80 flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">Add New Subscription</h3>
+          <p id="add-modal-step-label" class="text-xs text-slate-500 dark:text-slate-400">Step 1 of 6 — Select Service</p>
+        </div>
+        <button onclick="app.closeAddModal()" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700 transition-all">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Step Progress Bar -->
+      <div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5">
+        <div id="add-modal-progress" class="bg-brand-600 h-1.5 transition-all duration-300" style="width: 16.66%;"></div>
+      </div>
+
+      <!-- Modal Body (Steps) -->
+      <div class="p-6 space-y-5">
+
+        <!-- STEP 1: Service Selection -->
+        <div id="add-step-1" class="space-y-4">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Choose Popular Preset or Custom Service</label>
+          <div class="grid grid-cols-3 gap-2.5 max-h-56 overflow-y-auto p-1">
+            <button onclick="app.selectServicePreset('Netflix', 'Entertainment', 'film', '#e50914')" class="service-preset-btn p-3 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-brand-500 text-center flex flex-col items-center space-y-1.5 transition-all">
+              <div class="w-8 h-8 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-600 flex items-center justify-center">
+                <i data-lucide="film" class="w-4 h-4"></i>
+              </div>
+              <span class="text-xs font-semibold">Netflix</span>
+            </button>
+            <button onclick="app.selectServicePreset('ChatGPT Plus', 'Software', 'bot', '#10a37f')" class="service-preset-btn p-3 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-brand-500 text-center flex flex-col items-center space-y-1.5 transition-all">
+              <div class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 flex items-center justify-center">
+                <i data-lucide="bot" class="w-4 h-4"></i>
+              </div>
+              <span class="text-xs font-semibold">ChatGPT</span>
+            </button>
+            <button onclick="app.selectServicePreset('Spotify', 'Entertainment', 'music', '#1ed760')" class="service-preset-btn p-3 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-brand-500 text-center flex flex-col items-center space-y-1.5 transition-all">
+              <div class="w-8 h-8 rounded-xl bg-green-100 dark:bg-green-900/40 text-green-600 flex items-center justify-center">
+                <i data-lucide="music" class="w-4 h-4"></i>
+              </div>
+              <span class="text-xs font-semibold">Spotify</span>
+            </button>
+            <button onclick="app.selectServicePreset('GitHub', 'Software', 'github', '#2ea44f')" class="service-preset-btn p-3 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-brand-500 text-center flex flex-col items-center space-y-1.5 transition-all">
+              <div class="w-8 h-8 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 flex items-center justify-center">
+                <i data-lucide="github" class="w-4 h-4"></i>
+              </div>
+              <span class="text-xs font-semibold">GitHub</span>
+            </button>
+            <button onclick="app.selectServicePreset('Adobe CC', 'Productivity', 'palette', '#ff0000')" class="service-preset-btn p-3 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-brand-500 text-center flex flex-col items-center space-y-1.5 transition-all">
+              <div class="w-8 h-8 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-500 flex items-center justify-center">
+                <i data-lucide="palette" class="w-4 h-4"></i>
+              </div>
+              <span class="text-xs font-semibold">Adobe CC</span>
+            </button>
+            <button onclick="app.selectServicePreset('Custom Service', 'Software', 'credit-card', '#6366f1')" class="service-preset-btn p-3 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-brand-500 text-center flex flex-col items-center space-y-1.5 transition-all">
+              <div class="w-8 h-8 rounded-xl bg-brand-100 dark:bg-brand-900/40 text-brand-600 flex items-center justify-center">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+              </div>
+              <span class="text-xs font-semibold">Custom</span>
+            </button>
+          </div>
+
+          <div class="pt-2">
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Service Name</label>
+            <input type="text" id="add-input-name" placeholder="e.g. Disney+, Gym Membership, Figma" class="w-full px-3.5 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+          </div>
+        </div>
+
+        <!-- STEP 2: Price -->
+        <div id="add-step-2" class="space-y-4 hidden">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Subscription Cost</label>
+          <div class="relative">
+            <span class="absolute left-4 top-3 text-lg font-bold text-slate-400">$</span>
+            <input type="number" step="0.01" id="add-input-price" placeholder="14.99" class="w-full pl-9 pr-4 py-3 text-2xl font-bold rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+          </div>
+          <p class="text-xs text-slate-500">Enter recurring amount charged per billing cycle.</p>
+        </div>
+
+        <!-- STEP 3: Billing Frequency -->
+        <div id="add-step-3" class="space-y-4 hidden">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Billing Frequency</label>
+          <div class="grid grid-cols-2 gap-3">
+            <button type="button" id="billing-btn-monthly" onclick="app.setAddBillingCycle('Monthly')" class="p-4 rounded-2xl border-2 border-brand-500 bg-brand-50/50 dark:bg-brand-950/30 text-left transition-all">
+              <span class="block text-sm font-bold text-slate-900 dark:text-white">Monthly</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">Charged every month</span>
+            </button>
+            <button type="button" id="billing-btn-yearly" onclick="app.setAddBillingCycle('Yearly')" class="p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 text-left transition-all">
+              <span class="block text-sm font-bold text-slate-900 dark:text-white">Yearly</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">Charged once per year</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 4: Category -->
+        <div id="add-step-4" class="space-y-4 hidden">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Select Category</label>
+          <div class="grid grid-cols-2 gap-2.5">
+            <button type="button" onclick="app.setAddCategory('Software')" class="cat-select-btn px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left text-xs font-semibold hover:border-brand-500">Software</button>
+            <button type="button" onclick="app.setAddCategory('Entertainment')" class="cat-select-btn px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left text-xs font-semibold hover:border-brand-500">Entertainment</button>
+            <button type="button" onclick="app.setAddCategory('Education')" class="cat-select-btn px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left text-xs font-semibold hover:border-brand-500">Education</button>
+            <button type="button" onclick="app.setAddCategory('Productivity')" class="cat-select-btn px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left text-xs font-semibold hover:border-brand-500">Productivity</button>
+            <button type="button" onclick="app.setAddCategory('Cloud storage')" class="cat-select-btn px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left text-xs font-semibold hover:border-brand-500">Cloud Storage</button>
+            <button type="button" onclick="app.setAddCategory('Fitness')" class="cat-select-btn px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left text-xs font-semibold hover:border-brand-500">Fitness</button>
+            <button type="button" onclick="app.setAddCategory('Shopping')" class="cat-select-btn px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left text-xs font-semibold hover:border-brand-500">Shopping</button>
+          </div>
+        </div>
+
+        <!-- STEP 5: Renewal Date -->
+        <div id="add-step-5" class="space-y-4 hidden">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Next Renewal / Payment Date</label>
+          <input type="text" id="add-input-date" placeholder="Select renewal date" class="w-full px-4 py-3 text-sm rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+          <p class="text-xs text-slate-500">We'll alert you before this charge occurs.</p>
+        </div>
+
+        <!-- STEP 6: Confirmation -->
+        <div id="add-step-6" class="space-y-4 hidden">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Confirm Details</label>
+          <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2.5 text-sm">
+            <div class="flex justify-between"><span class="text-slate-500">Service:</span><span id="confirm-val-name" class="font-bold"></span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Price:</span><span id="confirm-val-price" class="font-bold text-brand-600 dark:text-brand-400"></span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Billing Cycle:</span><span id="confirm-val-cycle" class="font-medium"></span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Category:</span><span id="confirm-val-cat" class="font-medium"></span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Next Payment:</span><span id="confirm-val-date" class="font-medium"></span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer Controls -->
+      <div class="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700/80 flex items-center justify-between">
+        <button id="add-prev-btn" onclick="app.prevAddStep()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all invisible">
+          Back
+        </button>
+        <button id="add-next-btn" onclick="app.nextAddStep()" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-brand-600 hover:bg-brand-700 text-white shadow-md transition-all">
+          Next &rarr;
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- EDIT SUBSCRIPTION MODAL -->
+  <div id="modal-edit-subscription" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm hidden">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-2xl max-w-md w-full overflow-hidden animate-modal-in">
+      <div class="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+        <h3 class="text-base font-bold text-slate-900 dark:text-white">Edit Subscription</h3>
+        <button onclick="app.closeEditModal()" class="p-1 rounded-xl text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="edit-sub-form" onsubmit="app.handleEditSubmit(event)" class="p-6 space-y-4 text-xs">
+        <input type="hidden" id="edit-sub-id" />
+
+        <div>
+          <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Service Name</label>
+          <input type="text" id="edit-input-name" required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Price ($)</label>
+            <input type="number" step="0.01" id="edit-input-price" required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700" />
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Billing Cycle</label>
+            <select id="edit-input-cycle" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+              <option value="Monthly">Monthly</option>
+              <option value="Yearly">Yearly</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Category</label>
+            <select id="edit-input-cat" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+              <option value="Software">Software</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Education">Education</option>
+              <option value="Productivity">Productivity</option>
+              <option value="Cloud storage">Cloud Storage</option>
+              <option value="Fitness">Fitness</option>
+              <option value="Shopping">Shopping</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Status</label>
+            <select id="edit-input-status" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+              <option value="Active">Active</option>
+              <option value="Paused">Paused</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Next Payment Date</label>
+          <input type="text" id="edit-input-date" required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700" />
+        </div>
+
+        <div class="pt-3 flex justify-end space-x-2">
+          <button type="button" onclick="app.closeEditModal()" class="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRMATION MODAL -->
+  <div id="modal-delete-subscription" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm hidden">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-2xl max-w-sm w-full p-6 space-y-4 animate-modal-in text-center">
+      <div class="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-900/40 text-rose-600 flex items-center justify-center mx-auto">
+        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-slate-900 dark:text-white">Delete Subscription?</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Are you sure you want to remove <span id="delete-sub-title" class="font-bold text-slate-800 dark:text-slate-200"></span>? This action cannot be undone.</p>
+      </div>
+      <div class="flex items-center space-x-3 pt-2">
+        <button onclick="app.closeDeleteModal()" class="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100">Cancel</button>
+        <button id="delete-confirm-btn" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+  <!-- Scripts -->
+  <script src="js/mockApi.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
